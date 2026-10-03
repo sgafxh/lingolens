@@ -1,6 +1,15 @@
 import { useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import useUiStore from "../store/useUiStore";
+
+/**
+ * 鼠标移出窗口后延迟多少毫秒才真的隐藏。
+ *
+ * 不能立即隐藏：鼠标只是擦出窗口一点点又马上回来（例如仲手去够右下角的缩放手柄），
+ * 立即隐藏会让窗口"自己没了"。延迟期间只要 mouseenter 就取消。
+ */
+const HIDE_DELAY_MS = 300;
 
 /**
  * 自定义 Hook：将最新值同步到 Ref 中，避免 useEffect 依赖频繁触发
@@ -22,23 +31,67 @@ export function useWindowListener(
 
     useEffect(() => {
         const appWindow = getCurrentWindow();
+        let hideTimer: ReturnType<typeof setTimeout> | null = null;
+
+        const clearHideTimer = () => {
+            if (hideTimer !== null) {
+                clearTimeout(hideTimer);
+                hideTimer = null;
+            }
+        };
+
+        /** 当前是否还存在不能隐藏的理由 */
+        const hideBlocked = () => {
+            const { isResizing, hideSuppressUntil } = useUiStore.getState();
+            return (
+                isResizing ||
+                Date.now() < hideSuppressUntil ||
+                stateRef.current.isPinned
+            );
+        };
 
         const handleMouseEnter = () => {
+            clearHideTimer();
             invoke("update_hover_status", { hovered: true });
         };
 
+        const hideWindow = (reason: string) => {
+            invoke("update_hover_status", { hovered: false });
+            invoke("log_debug", {
+                tag: "fe_hide",
+                msg: `${reason} → appWindow.hide()`,
+            }).catch(() => {});
+            appWindow.hide();
+        };
+
         const handleMouseLeave = () => {
-            if (!stateRef.current.isPinned) {
-                invoke("update_hover_status", { hovered: false });
-                appWindow.hide();
-            }
+            if (hideBlocked()) return;
+
+            clearHideTimer();
+            hideTimer = setTimeout(async () => {
+                hideTimer = null;
+                if (hideBlocked()) return;
+
+                // 指针只是擦出窗口（伸手去够右下角缩放手柄时几乎必然发生）：
+                // 不算"离开"，重新排一次检查，等它真的走远了再隐藏。
+                const near = await invoke<boolean>("is_cursor_near_window", {
+                    tolerance: 30,
+                }).catch(() => true);
+
+                if (near) {
+                    handleMouseLeave();
+                    return;
+                }
+
+                hideWindow("mouseleave 且指针已远离窗口");
+            }, HIDE_DELAY_MS);
         };
 
         const handleKeydown = (e: KeyboardEvent) => {
             const { hideKey, pinKey, isPinned } = stateRef.current;
 
             if (e.key === hideKey) {
-                appWindow.hide();
+                hideWindow(`${hideKey} 键`);
             }
             if (e.key === pinKey) {
                 setIsPinned(!isPinned);
@@ -56,6 +109,7 @@ export function useWindowListener(
 
         // 清理事件
         return () => {
+            clearHideTimer();
             docElment.removeEventListener("mouseenter", handleMouseEnter);
             docElment.removeEventListener("mouseleave", handleMouseLeave);
             document.removeEventListener("keydown", handleKeydown);

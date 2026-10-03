@@ -6,7 +6,10 @@ use commands::access_mac::{check_permission, request_permission};
 use commands::audio::{play_phonetic_url, AudioState};
 use commands::config::{complete_setup, get_config, update_config};
 use commands::translate::fetch_trans_res;
-use commands::window::{stop_shortcuts, trigger_update_check, update_hover_status};
+use commands::window::{
+    is_cursor_near_window, log_debug, save_window_size, stop_shortcuts, trigger_update_check,
+    update_hover_status,
+};
 use reqwest::Client;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
@@ -46,6 +49,9 @@ pub fn run() {
         // 注册命令
         .invoke_handler(tauri::generate_handler![
             update_hover_status,
+            is_cursor_near_window,
+            log_debug,
+            save_window_size,
             fetch_trans_res,
             play_phonetic_url,
             get_config,
@@ -56,6 +62,14 @@ pub fn run() {
             request_permission,
             trigger_update_check
         ])
+        // 窗口尺寸变化后防抖落盘（前端的 pointerup 可能因指针压出窗口而收不到）
+        .on_window_event(|window, event| {
+            if window.label() == "main" {
+                if let tauri::WindowEvent::Resized(_) = event {
+                    utils::window_size_watcher::schedule_save(window.app_handle().clone());
+                }
+            }
+        })
         // 初始化应用状态
         .setup(|app| {
             let config = get_config_from_store(app.handle()).unwrap_or_default();
@@ -68,6 +82,11 @@ pub fn run() {
                 audio_state: AudioState::new(),
                 config: Mutex::new(config.clone()),
             });
+
+            // 恢复上次拖拽保存的窗口尺寸
+            if let Some(win) = app.get_webview_window("main") {
+                utils::show_window::apply_saved_window_size(&win, config.win_width, config.win_height);
+            }
 
             #[cfg(target_os = "macos")]
             {

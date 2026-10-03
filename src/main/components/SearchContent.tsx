@@ -78,16 +78,16 @@ function SecondQueryCard({
             className={`p-3 flex flex-col gap-2 transition-all duration-300 hover:bg-subBgW
                 ${isLast ? "" : "border-b border-borderSubW"}`}
         >
-            <div className="flex items-baseline justify-between">
+            <div className="flex items-baseline justify-between gap-2">
                 <span
-                    className="text-sm font-medium text-mainBlueW cursor-pointer"
+                    className="text-sm font-medium text-mainBlueW cursor-pointer break-words min-w-0"
                     onClick={() => onClick(item.k)}
                 >
                     {item.k}
                 </span>
                 {pos && (
                     <span
-                        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${getPosStyle(pos)}`}
+                        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0 ${getPosStyle(pos)}`}
                     >
                         {pos}
                     </span>
@@ -97,7 +97,7 @@ function SecondQueryCard({
                 {meanings.map((m) => (
                     <span
                         key={m}
-                        className="bg-gray-50 border border-gray-200 rounded text-[11px] text-gray-600 px-1.5 py-0.5"
+                        className="bg-gray-50 border border-gray-200 rounded text-[11px] text-gray-600 px-1.5 py-0.5 break-words max-w-full"
                     >
                         {m}
                     </span>

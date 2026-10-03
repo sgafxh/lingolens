@@ -6,6 +6,22 @@ use tauri::{AppHandle, Runtime};
 use tauri_plugin_global_shortcut::{Code, Modifiers};
 use tauri_plugin_store::StoreExt;
 
+fn default_win_width() -> f64 {
+    300.0
+}
+
+fn default_win_height() -> f64 {
+    420.0
+}
+
+fn default_llm_base_url() -> String {
+    "https://api.faheng.chat/v1".to_string()
+}
+
+fn default_llm_model() -> String {
+    "法衡-H1".to_string()
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
     pub theme: String,
@@ -24,6 +40,24 @@ pub struct AppConfig {
 
     pub search_win_modifiers: Modifiers,
     pub search_win_code: Code,
+
+    /// 主窗口尺寸（逻辑像素），由主窗口右下角拖拽手柄维护。
+    /// 带 serde 默认值：设置页提交的配置快照里可能没有这两个字段，
+    /// 缺了不应该让整份配置反序列化失败。
+    #[serde(default = "default_win_width")]
+    pub win_width: f64,
+    #[serde(default = "default_win_height")]
+    pub win_height: f64,
+
+    /// 翻译后端（法衡-H1，OpenAI 兼容接口）
+    #[serde(default = "default_llm_base_url")]
+    pub llm_base_url: String,
+    #[serde(default = "default_llm_model")]
+    pub llm_model: String,
+    /// API Key 不写进代码，只存在本机配置里
+    /// （%APPDATA%\com.syjun.pointra\config.json），也便于随时更换
+    #[serde(default)]
+    pub llm_api_key: String,
 
     pub first_setup_completed: bool,
 }
@@ -51,6 +85,11 @@ impl Default for AppConfig {
                 Modifiers::SUPER
             },
             search_win_code: Code::Digit2,
+            win_width: default_win_width(),
+            win_height: default_win_height(),
+            llm_base_url: default_llm_base_url(),
+            llm_model: default_llm_model(),
+            llm_api_key: String::new(),
             first_setup_completed: false,
         }
     }

@@ -17,7 +17,9 @@ cfg_mods!(
 cfg_mods!(target_os = "windows", capture_win, ocr_win, selection_win);
 
 // 通用模块
+pub mod debug_log;
 pub mod define_config;
+pub mod window_size_watcher;
 pub mod get_text;
 pub mod ocr_common;
 pub mod shortcuts;

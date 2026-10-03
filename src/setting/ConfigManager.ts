@@ -64,6 +64,13 @@ export class ConfigManager {
                 select_text_code: "Digit1",
                 select_text_modifiers: "SUPER",
                 theme: "light",
+                // 主窗口尺寸不由设置页管理，后端会用当前值覆盖这两个字段
+                win_width: 300,
+                win_height: 420,
+                // 翻译后端同样不由设置页管理，后端会用当前值覆盖（含 API Key）
+                llm_base_url: "",
+                llm_model: "",
+                llm_api_key: "",
                 first_setup_completed: false,
             };
 

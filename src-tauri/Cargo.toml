@@ -29,7 +29,17 @@ anyhow = "1"
 screenshots = "0.8.10"
 image = "0.25.10"
 device_query = "4.0.1"
-reqwest = { version = "0.13.3", features = ["json"] }
+# 说明：reqwest 0.13 的 default-tls 默认走 rustls，会在 Windows 上引入 aws-lc-sys，
+# 而构建它需要 CMake + 原生编译（几十分钟且容易因工具链缺失而失败）。
+# 这里显式改用 native-tls（Windows 上即系统 schannel），去掉这个本地编译依赖。
+# 需要回退时把 default-features 改成 true 并删掉 native-tls 即可。
+reqwest = { version = "0.13.3", default-features = false, features = [
+    "json",
+    "native-tls",
+    "charset",
+    "http2",
+    "system-proxy",
+] }
 md5 = "0.8.0"
 uuid = {version = "1.23.1",  features = ["v4", "serde"] }
 tokio = "1.52.3"

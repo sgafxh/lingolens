@@ -54,6 +54,10 @@ pub fn init_point_listener(app_handle: AppHandle) {
                             cached_window = app_handle.get_webview_window("main");
                         }
                         if let Some(win) = &cached_window {
+                            crate::utils::debug_log::log(
+                                "f2_release",
+                                "F2 松开且 window_locked=false → 隐藏窗口",
+                            );
                             let _ = win.hide();
                         }
                     }

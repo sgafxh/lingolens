@@ -184,7 +184,7 @@ function Content({
                             .map((val, index) => (
                                 <span
                                     key={index}
-                                    className="bg-gray-50 border pt-1 border-gray-200 rounded text-[11px] text-gray-600 px-1.5 py-0.5"
+                                    className="bg-gray-50 border pt-1 border-gray-200 rounded text-[11px] text-gray-600 px-1.5 py-0.5 break-words max-w-full"
                                 >
                                     {val}
                                 </span>
@@ -210,13 +210,15 @@ function Content({
 
     return (
         <div className="mx-3 flex flex-col p-3 pt-2.5 flex-1 min-h-0 border-borderMainW border rounded-xl">
-            <main className="flex flex-col gap-2 ">
-                <div className="flex justify-between items-center">
-                    <p className="text-xl text-mainTitleW">{translate.text}</p>
+            <main className="flex flex-col gap-2 min-h-0 overflow-y-auto no-scrollbar">
+                <div className="flex justify-between items-center gap-2">
+                    <p className="text-xl text-mainTitleW break-words whitespace-pre-wrap min-w-0">
+                        {translate.text}
+                    </p>
                     <div
                         onClick={handleCopy}
                         className={`
-                            flex items-center justify-center w-6 h-6 rounded-md border cursor-pointer
+                            flex items-center justify-center w-6 h-6 rounded-md border cursor-pointer shrink-0
                             transition-all duration-200 active:scale-90 bg-blue-50 border-blue-200
 
                           `}
@@ -247,7 +249,9 @@ function Content({
                     <p className="text-[10px] text-tagW font-sans">
                         {wordCard.show ? "常用" : "中文"}释义
                     </p>
-                    <p className="text-xl text-mainBlueW">{translate.dit}</p>
+                    <p className="text-xl text-mainBlueW break-words whitespace-pre-wrap">
+                        {translate.dit}
+                    </p>
                 </div>
             </main>
 

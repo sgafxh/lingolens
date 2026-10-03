@@ -1,7 +1,8 @@
 use crate::utils::define_config::{get_config_from_store, save_config_to_store, AppConfig};
 use crate::utils::shortcuts::restart_shortcuts;
+use crate::AppState;
 use serde_json::json;
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_autostart::ManagerExt;
 
 #[tauri::command]
@@ -10,7 +11,18 @@ pub async fn get_config(app: AppHandle) -> Result<AppConfig, String> {
 }
 
 #[tauri::command]
-pub async fn update_config(app: AppHandle, new_config: AppConfig) -> Result<bool, String> {
+pub async fn update_config(app: AppHandle, mut new_config: AppConfig) -> Result<bool, String> {
+    // 主窗口尺寸由右下角拖拽手柄维护（save_window_size），设置页不管理这个字段。
+    // 设置页提交的是它自己那份快照，直接保存会用旧尺寸盖掉用户刚拖好的大小。
+    // 翻译后端三个字段同理：设置页不提供编辑，必须保留当前值（否则会抹掉 API Key）。
+    if let Ok(current) = app.state::<AppState>().config.lock() {
+        new_config.win_width = current.win_width;
+        new_config.win_height = current.win_height;
+        new_config.llm_base_url = current.llm_base_url.clone();
+        new_config.llm_model = current.llm_model.clone();
+        new_config.llm_api_key = current.llm_api_key.clone();
+    }
+
     save_config_to_store(&app, &new_config)?;
     restart_shortcuts(&app, new_config.clone());
 
