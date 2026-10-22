@@ -4,7 +4,7 @@
 
 Source: https://github.com/SYJun404/Pointra-Pub
 
-The upstream README declares “MIT © SYJun”. LingoLens retains that attribution in LICENSE and preserves upstream commit history. The original README is available in that history. UI artwork and the bundled DingTalk JinBuTi font are inherited from this upstream tree; their original names are retained.
+The upstream README declares “MIT © SYJun”. LingoLens retains that attribution in LICENSE and preserves upstream commit history. The original README is available in that history. The bundled DingTalk JinBuTi font and legacy artwork files are inherited from this upstream tree. The active LingoLens app icon is an original lens-and-cursor design, distributed under the project MIT license.
 
 ## SnapTraTranslator
 

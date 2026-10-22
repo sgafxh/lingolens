@@ -1,10 +1,20 @@
 # LingoLens · 译镜
 
+<img src="public/lingolens.svg" width="112" height="112" alt="LingoLens icon" />
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Rust + Tauri](https://img.shields.io/badge/Desktop-Rust%20%2B%20Tauri-24b7bf)](src-tauri)
+[![Validation](https://img.shields.io/badge/Windows_unit_tests-27_passed-2f855a)](docs/VALIDATION.md)
+
 光标取词、划词翻译与 Markdown 阅读，面向中英文混排的桌面工作流。
 
 LingoLens is a Tauri desktop translator with Chinese word segmentation, cursor-based OCR, and paragraph-aware Markdown translation. Maintained by [Xuehan Feng (@sgafxh)](https://github.com/sgafxh).
 
 基于 [SYJun404/Pointra-Pub](https://github.com/SYJun404/Pointra-Pub) 持续改进。Pointra 原始作者为 SYJun，其 README 说明项目基于 [yelog/SnapTraTranslator](https://github.com/yelog/SnapTraTranslator)。本仓库保留上游提交历史；新增工作见 [改进记录](docs/CHANGES.md)。
+
+## 为什么做这个项目
+
+中文技术阅读常会碰到三个问题：光标 OCR 只能取到单字、混排内容容易选错翻译方向、长译文丢失段落和代码结构。LingoLens 把中文词边界、语言判断和 Markdown 展示放在同一条桌面翻译流程中，方便阅读英文文档、论文和含代码的技术内容。
 
 ## 项目状态
 

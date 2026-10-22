@@ -4,7 +4,7 @@ import {
     ChevronDown,
     CircleArrowUpFill,
 } from "@gravity-ui/icons";
-import logo from "../../assets/icon/pointraInApp.png";
+import logo from "../../assets/icon/lingolens.png";
 import useUiStore from "../../main/store/useUiStore";
 import { useNavigate } from "react-router-dom";
 import { getCurrentWindow } from "@tauri-apps/api/window";

@@ -1,4 +1,4 @@
-import pointraLogo from "../../assets/icon/pointra.png";
+import pointraLogo from "../../assets/icon/lingolens.png";
 import { openUrl } from "@tauri-apps/plugin-opener";
 
 export default function AboutSection() {
