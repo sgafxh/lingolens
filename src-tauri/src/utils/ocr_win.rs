@@ -1,3 +1,4 @@
+use crate::utils::debug_log;
 use crate::utils::ocr_common::{self, NormalizedRect, WordBox};
 use std::sync::{Arc, Mutex};
 use windows::Globalization::Language;
@@ -9,7 +10,7 @@ use windows::Media::Ocr::OcrResult;
 use windows::Storage::Streams::DataWriter;
 use windows::Storage::Streams::InMemoryRandomAccessStream;
 
-pub use crate::utils::ocr_common::{select_sentence, select_word};
+pub use crate::utils::ocr_common::{select_sentence, select_word_smart};
 
 // ── Tauri State ───────────────────────────────────────────
 pub struct OcrState {
@@ -24,9 +25,11 @@ impl OcrState {
     /// 应在 Tauri setup() 中调用一次，初始化并缓存 OcrEngine。
     /// 内部会用一张小白图做一次预热推理。
     pub fn new() -> Arc<Self> {
-        let engine = new_engine().unwrap_or_else(|_| {
-            OcrEngine::TryCreateFromUserProfileLanguages().expect("Windows OCR 初始化失败")
-        });
+        let (engine, tag) = new_engine();
+        debug_log::log(
+            "ocr_engine",
+            &format!("OCR 引擎语言 = {tag}（本机可用：只有 zh-Hans-CN 时 en 引擎会创建失败）"),
+        );
         let state = Arc::new(Self {
             engine: Mutex::new(engine),
         });
@@ -35,11 +38,40 @@ impl OcrState {
     }
 }
 
-fn new_engine() -> windows::core::Result<OcrEngine> {
-    let lang = Language::CreateLanguage(&windows::core::HSTRING::from("en"))?;
-    match OcrEngine::TryCreateFromLanguage(&lang) {
-        Ok(engine) => Ok(engine),
-        Err(_) => OcrEngine::TryCreateFromUserProfileLanguages(),
+/// 选 OCR 引擎：**优先能读汉字的**。
+///
+/// Windows 的 OCR 引擎是一个引擎一种语言，而且语言包是分开装的（本机只装了 zh-Hans-CN，
+/// 连 TryCreateFromLanguage("en") 都返回失败）。原实现先用 en、失败才退到用户配置语言，
+/// 顺序上碰巧對，但一旦机器同时装了中英两个包，就会选中 en 引擎 —— 而 en 引擎读不出中文，
+/// 表现为悬浮取词遇中文完全没反应。所以这里改成：汉字/日韩引擎优先，
+/// 它们同时能读英文单词；真没有时才用 en，最后才是用户配置语言。
+fn new_engine() -> (OcrEngine, String) {
+    const HAN_FIRST: [&str; 5] = ["zh-Hans-CN", "zh-Hans", "zh-CN", "ja", "ko"];
+
+    for tag in HAN_FIRST {
+        if let Ok(lang) = Language::CreateLanguage(&windows::core::HSTRING::from(tag)) {
+            if let Ok(engine) = OcrEngine::TryCreateFromLanguage(&lang) {
+                return (engine, tag.to_string());
+            }
+        }
+    }
+
+    if let Ok(lang) = Language::CreateLanguage(&windows::core::HSTRING::from("en")) {
+        if let Ok(engine) = OcrEngine::TryCreateFromLanguage(&lang) {
+            return (engine, "en".to_string());
+        }
+    }
+
+    match OcrEngine::TryCreateFromUserProfileLanguages() {
+        Ok(engine) => {
+            let tag = engine
+                .RecognizerLanguage()
+                .and_then(|l| l.LanguageTag())
+                .map(|t| t.to_string())
+                .unwrap_or_else(|_| "unknown".to_string());
+            (engine, tag)
+        }
+        Err(e) => panic!("Windows OCR 初始化失败: {e}"),
     }
 }
 
@@ -250,7 +282,10 @@ fn to_software_bitmap(img: &image::DynamicImage) -> anyhow::Result<SoftwareBitma
     }
 }
 
-/// 识别图片中的英文文字，返回带归一化坐标的单词列表。
+/// 识别图片中的文字，返回带归一化坐标的单词列表。
+///
+/// 中文与英文都会返回（汉字 token 曾经被 contains_letter 过滤掉，已修），
+/// 所以中英混排行能同时拿到两类 token。
 pub fn recognize_words(
     img: &image::DynamicImage,
     state: &OcrState,
@@ -282,26 +317,33 @@ pub fn recognize_words(
                 continue;
             }
 
+            let word_rect = ocr_word.BoundingRect()?;
+            let word_normal = NormalizedRect {
+                x: word_rect.X as f64 / img_w as f64,
+                y: word_rect.Y as f64 / img_h as f64,
+                w: word_rect.Width as f64 / img_w as f64,
+                h: word_rect.Height as f64 / img_h as f64,
+            };
+
             // 对每个词做脚本感知分词（处理 CamelCase 混合文本）
-            for byte_range in ocr_common::script_aware_ranges(&word_text) {
+            let ranges = ocr_common::script_aware_ranges(&word_text);
+
+            // script_aware_ranges 只输出"字母/汉字段"，纯标点和纯数字会被整段跳过。
+            // 标点必须留在词表里：中文 OCR 是单字 box，没标点就分不出小句边界，
+            // 句尾判定（。！？）也会失效。
+            if ranges.is_empty() {
+                words.push(WordBox {
+                    text: word_text.clone(),
+                    x: word_normal.x,
+                    y: word_normal.y,
+                    w: word_normal.w,
+                    h: word_normal.h,
+                });
+                continue;
+            }
+
+            for byte_range in ranges {
                 let token = &word_text[byte_range.clone()];
-                if !ocr_common::contains_letter(token) {
-                    continue;
-                }
-
-                let word_rect = ocr_word.BoundingRect()?;
-                // 归一化
-                let wx = word_rect.X as f64 / img_w as f64;
-                let wy = word_rect.Y as f64 / img_h as f64;
-                let ww = word_rect.Width as f64 / img_w as f64;
-                let wh = word_rect.Height as f64 / img_h as f64;
-                let word_normal = NormalizedRect {
-                    x: wx,
-                    y: wy,
-                    w: ww,
-                    h: wh,
-                };
-
                 let is_sub = byte_range != (0..word_text.len());
 
                 // 子词（CamelCase 拆分出的部分）用 fallback 估算
@@ -320,10 +362,10 @@ pub fn recognize_words(
                     // 完整词直接使用 OCR 提供的精确 BoundingRect
                     words.push(WordBox {
                         text: token.to_string(),
-                        x: wx,
-                        y: wy,
-                        w: ww,
-                        h: wh,
+                        x: word_normal.x,
+                        y: word_normal.y,
+                        w: word_normal.w,
+                        h: word_normal.h,
                     });
                 }
             }

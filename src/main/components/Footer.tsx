@@ -39,7 +39,8 @@ function Footer({ path }: { path: string }) {
     }) => (
         <div
             onClick={onClick}
-            className="flex items-center justify-center w-6 h-6 rounded-md bg-white border border-borderMainW
+            // relative + z-index：压在右下角缩放手柄之上，保证按钮永远点得到
+            className="relative z-[60] flex items-center justify-center w-6 h-6 rounded-md bg-white border border-borderMainW
                        cursor-pointer transition-transform active:scale-90"
         >
             {children}
@@ -55,7 +56,7 @@ function Footer({ path }: { path: string }) {
         <div className="mt-auto bg-subBgW h-10 px-3 py-2 border-t border-borderSubW">
             <div className="flex items-center h-full relative gap-2">
                 <img className="w-4 h-4" src={logo}></img>
-                <p className="text-sm text-tagW absolute left-6">Pointra</p>
+                <p className="text-sm text-tagW absolute left-6">LingoLens</p>
 
                 <div className="ml-auto flex gap-1.5">
                     {(() => {
@@ -73,8 +74,9 @@ function Footer({ path }: { path: string }) {
                     })()}
                     <div
                         onClick={() => setIsPinned(!isPinned)}
+                        // 同上：图钉就在右下角，必须能压过缩放手柄
                         className={`
-                            flex items-center justify-center w-6 h-6 rounded-md border cursor-pointer
+                            relative z-[60] flex items-center justify-center w-6 h-6 rounded-md border cursor-pointer
                             transition-all duration-200 active:scale-90
                             ${
                                 isPinned

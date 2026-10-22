@@ -8,7 +8,7 @@ use objc2_vision::{
 };
 use std::sync::{Arc, Mutex};
 
-pub use crate::utils::ocr_common::{select_sentence, select_word};
+pub use crate::utils::ocr_common::{select_sentence, select_word_smart};
 
 // ── Tauri State：缓存启动时初始化的 OCR 配置 ──────────────
 pub struct OcrState {
@@ -131,9 +131,15 @@ pub fn recognize_words(
             let text_box = nr_from_cg(text_box_cg);
 
             // 脚本感知分词：中英混排行里拉丁段做 CamelCase 拆分
+            //
+            // 注意（macOS 侧待补）：Windows 侧已按"单字 box + 标点单独成 token"重建了词表，
+            // 并配了 select_word_smart 取"光标左右各几字"；macOS 的 Vision 给的是整行文本+
+            // 区间偏移，汉字段现在会整段成一个 token，所以中文取词会拿到整行。
+            // 要跟 Windows 对齐，需要在这里把汉字段按字切开（用 boundingBoxForRange 取每字 box）
+            // 并把区间之间的标点也输出成 token。当前只先修好"汉字 token 被过滤掉"这个致命问题。
             for byte_range in ocr_common::script_aware_ranges(&text) {
                 let token = &text[byte_range.clone()];
-                if !ocr_common::contains_letter(token) {
+                if !ocr_common::is_meaningful_token(token) {
                     continue;
                 }
 

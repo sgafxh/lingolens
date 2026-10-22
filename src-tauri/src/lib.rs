@@ -33,6 +33,9 @@ pub struct AppState {
     window_locked: Arc<AtomicBool>,
     audio_state: AudioState,
     config: Mutex<AppConfig>,
+    /// 本次翻译的触发方式：selection（划词）/ hover（鼠标悬浮取词、取句）/ input（搜索框）。
+    /// 悬浮取词遇到中文原文要固定译成英文，所以得知道"这次是怎么触发的"。
+    last_origin: Mutex<String>,
 }
 
 pub fn run() {
@@ -81,12 +84,17 @@ pub fn run() {
                 window_locked: Arc::new(AtomicBool::new(false)),
                 audio_state: AudioState::new(),
                 config: Mutex::new(config.clone()),
+                last_origin: Mutex::new("selection".to_string()),
             });
 
             // 恢复上次拖拽保存的窗口尺寸
             if let Some(win) = app.get_webview_window("main") {
                 utils::show_window::apply_saved_window_size(&win, config.win_width, config.win_height);
             }
+
+            // 后台预热中文词表（1.5MB 文本，首次解析约几十毫秒）：
+            // 不预热的话，启动后第一次悬浮取词会明显卡一下
+            std::thread::spawn(|| crate::utils::zh_segment::warmup());
 
             #[cfg(target_os = "macos")]
             {

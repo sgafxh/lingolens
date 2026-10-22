@@ -17,9 +17,10 @@ import useUiStore from "../store/useUiStore";
  * 三个容易踩的坑，这里都处理了：
  * 1. 窗口在鼠标移出时会自动隐藏（见 utils/useCustom.ts），且带 300ms 延迟。
  *    拖拽过程中指针很容易压到窗口边缘外，必须先锁住 hover 状态，松手后再交还给正常逻辑。
- * 2. **手柄放在窗口真正的右下角**（尖尖那个像素点）。之前往里收 10px、往上提 48px
- *    去避开页脚按钮，反而不符合"角上抓手"的习惯（而且斜着拖时手感对不上）。
- *    现在贴角，靠 ① 移出隐藏的容错范围 ② 进入手柄时的抑制，不会在仲手时误隐藏。
+ * 2. **手柄放在窗口真正的右下角**（尖尖那个像素点），但命中区只能取 16px：
+ *    页脚的图钉按钮就在附近，手柄放大会抢掉它的点击（之前 24px 时右下角一大块点不到图钉）。
+ *    另外页脚按钮的 z-index 也提到了手柄之上，保证它们永远能点到。
+ *    仲手时不会误隐藏：靠 ① 移出隐藏的容错范围 ② 进入手柄时的抑制。
  * 3. 尺寸需要被记住：松手时调一次 `save_window_size`，后端还会监听窗口 Resized
  *    事件防抖落盘（前端的 pointerup 可能因为指针压出窗口而收不到）。
  *
@@ -251,9 +252,9 @@ function ResizeHandle() {
                 }).catch(() => {});
             }}
             title="拖拽缩放窗口（等比；按住 Shift 自由调宽高）"
-            // 贴在窗口真正的右下角：抓手就在你最自然去够的那个角上。
-            // 命中区 24px，比图标大一圈，不用恰好命中图标也能拖。
-            className={`fixed bottom-0 right-0 z-50 w-6 h-6 flex items-end justify-end rounded-sm
+            // 命中区 16px＝图标大小，刚好压在窗口右下角：
+            // 不会再抢掉页脚图钉按钮的点击（z-index 见 Footer）。
+            className={`fixed bottom-0 right-0 z-50 w-4 h-4 flex items-end justify-end rounded-sm
                         cursor-nwse-resize touch-none transition-opacity
                         hover:bg-subBgW ${resizing ? "opacity-100" : "opacity-60 hover:opacity-100"}`}
         >

@@ -1,8 +1,10 @@
 [package]
-name = "Pointra"
+name = "lingolens"
 version = "1.0.0"
 description = "A Word Search Assistant Based on Mouse Pointer"
-authors = ["SYJun"]
+authors = ["SYJun", "Xuehan Feng (sgafxh)"]
+license = "MIT"
+repository = "https://github.com/sgafxh/lingolens"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

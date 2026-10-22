@@ -3,7 +3,7 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 
 export default function AboutSection() {
     const openTutorial = () => {
-        openUrl("https://pointra.syjun.vip");
+        openUrl("https://github.com/sgafxh/lingolens#readme");
     };
 
     return (
@@ -30,7 +30,7 @@ export default function AboutSection() {
                     </div>
                     <div>
                         <p className="text-sm text-mainTitleW font-medium">
-                            Pointra
+                            LingoLens · 译镜
                         </p>
                         <p className="text-[11px] text-tagSecondW mt-0.5">
                             版本 {__APP_VERSION__} 『 光标所指 · 翻译即达 』
@@ -48,7 +48,7 @@ export default function AboutSection() {
                 </div>
             </div>
             <p className="text-[11px] mt-3 text-center text-tagSecondW">
-                Developed By SYJun
+                Maintained by sgafxh · Based on Pointra by SYJun
             </p>
         </section>
     );

@@ -22,6 +22,11 @@ fn default_llm_model() -> String {
     "法衡-H1".to_string()
 }
 
+/// 翻译目标语言：auto（自动判定，默认）/ zh（一律中文）/ en（一律英文）
+fn default_llm_target_lang() -> String {
+    "auto".to_string()
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig {
     pub theme: String,
@@ -54,8 +59,14 @@ pub struct AppConfig {
     pub llm_base_url: String,
     #[serde(default = "default_llm_model")]
     pub llm_model: String,
+    /// 翻译目标语言：
+    /// * `auto`（默认）—— 全中文→英文；全英文 / 中英混排→中文
+    /// * `zh` —— 一律译成中文（原文已是中文时原样返回）
+    /// * `en` —— 一律译成英文（原文已是英文时原样返回）
+    #[serde(default = "default_llm_target_lang")]
+    pub llm_target_lang: String,
     /// API Key 不写进代码，只存在本机配置里
-    /// （%APPDATA%\com.syjun.pointra\config.json），也便于随时更换
+    /// （%APPDATA%\io.github.sgafxh.lingolens\config.json），也便于随时更换
     #[serde(default)]
     pub llm_api_key: String,
 
@@ -89,6 +100,7 @@ impl Default for AppConfig {
             win_height: default_win_height(),
             llm_base_url: default_llm_base_url(),
             llm_model: default_llm_model(),
+            llm_target_lang: default_llm_target_lang(),
             llm_api_key: String::new(),
             first_setup_completed: false,
         }
@@ -97,6 +109,7 @@ impl Default for AppConfig {
 
 // 定义一个常数作为 store 的文件名
 const CONFIG_FILE: &str = "config.json";
+pub const CONFIG_FILE_NAME: &str = CONFIG_FILE;
 
 pub fn keycode_from_str(s: &str) -> Option<Keycode> {
     Some(match s {

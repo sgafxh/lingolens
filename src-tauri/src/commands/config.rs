@@ -20,6 +20,7 @@ pub async fn update_config(app: AppHandle, mut new_config: AppConfig) -> Result<
         new_config.win_height = current.win_height;
         new_config.llm_base_url = current.llm_base_url.clone();
         new_config.llm_model = current.llm_model.clone();
+        new_config.llm_target_lang = current.llm_target_lang.clone();
         new_config.llm_api_key = current.llm_api_key.clone();
     }
 

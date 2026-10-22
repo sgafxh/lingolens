@@ -1,8 +1,8 @@
 {
     "$schema": "https://schema.tauri.app/config/2",
-    "productName": "Pointra",
+    "productName": "LingoLens",
     "version": "1.0.0",
-    "identifier": "com.syjun.pointra",
+    "identifier": "io.github.sgafxh.lingolens",
     "build": {
         "beforeDevCommand": "pnpm dev",
         "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
     "app": {
         "windows": [
             {
-                "title": "Pointra",
+                "title": "LingoLens",
                 "label": "main",
                 "url": "src/main/index.html",
                 "width": 300,

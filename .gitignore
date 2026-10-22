@@ -26,3 +26,14 @@ dist-ssr
 # 注：src-tauri/src/utils/{update.rs,trans_server.rs} 上游当作私有文件忽略，
 # 本构建自行实现了它们（代码里不含任何密钥，Key 只存在本机 config.json），
 # 因此不再忽略，纳入版本管理。
+
+# Local configuration and diagnostics
+.tmp/
+.env
+.env.*
+!.env.example
+config.json
+*.pem
+*.key
+*.pfx
+core-tests*

@@ -70,6 +70,7 @@ export class ConfigManager {
                 // 翻译后端同样不由设置页管理，后端会用当前值覆盖（含 API Key）
                 llm_base_url: "",
                 llm_model: "",
+                llm_target_lang: "",
                 llm_api_key: "",
                 first_setup_completed: false,
             };

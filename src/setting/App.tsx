@@ -38,7 +38,7 @@ function SettingPage() {
                 <div className="shrink-0 px-3 pt-3">
                     <div className="rounded-xl bg-blueBgW border border-blueBorderW px-4 py-3">
                         <p className="text-xs text-mainBlueW leading-relaxed">
-                            🎉 &nbsp; 欢迎使用 Pointra！请先为下方
+                            🎉 &nbsp; 欢迎使用 LingoLens！请先为下方
                             <strong>「授权许可」</strong>
                             中的两项权限授予访问权限，
                             然后点击底部按钮完成设置，应用将自动重启。

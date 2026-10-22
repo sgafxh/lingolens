@@ -38,6 +38,8 @@ export interface RustAppConfig {
     /** 翻译后端（法衡-H1，OpenAI 兼容接口）；由本机配置维护，设置页不编辑 */
     llm_base_url: string;
     llm_model: string;
+    /** 翻译目标语言：auto（自动判定）/ zh（一律中文）/ en（一律英文） */
+    llm_target_lang: string;
     llm_api_key: string;
     first_setup_completed: boolean;
 }

@@ -13,7 +13,7 @@ pub fn create_setting_win<R: Runtime>(app: &AppHandle<R>) {
         "setting",
         WebviewUrl::App("src/setting/index.html".into()),
     )
-    .title("Pointra")
+    .title("LingoLens")
     .inner_size(400.0, 600.0)
     .resizable(false)
     .visible(false)

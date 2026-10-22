@@ -1,322 +1,75 @@
-# Pointra — 光标所指 · 翻译即达
+# LingoLens · 译镜
 
-<div align="center">
-  <p>
-    <strong>轻量高效 &nbsp; 一款基于鼠标指针的查词助手</strong>
-  </p>
-  <p>
-    <a href="#features">功能特性</a> •
-    <a href="#quick-start">快速开始</a> •
-    <a href="#tech-stack">技术栈</a> •
-    <a href="#project-structure">项目结构</a> •
-    <a href="#configuration">配置说明</a>
-  </p>
-</div>
+光标取词、划词翻译与 Markdown 阅读，面向中英文混排的桌面工作流。
 
-Pointra 是一款跨平台（macOS / Windows）桌面翻译工具。核心思路是：通过屏幕截图 + OCR 技术识别光标附近的文字进行翻译，无需手动选中或输入单词，极大提升阅读和学习效率。
+LingoLens is a Tauri desktop translator with Chinese word segmentation, cursor-based OCR, and paragraph-aware Markdown translation. Maintained by [Xuehan Feng (@sgafxh)](https://github.com/sgafxh).
 
-本项目是在 [yelog/SnapTraTranslator](https://github.com/yelog/SnapTraTranslator)（一款优秀的 macOS 离线快速翻译软件）的基础上编写的。非常感谢作者 [@yelog](https://github.com/yelog) 的开源付出，为本项目提供了最初的灵感与核心思路！
+基于 [SYJun404/Pointra-Pub](https://github.com/SYJun404/Pointra-Pub) 持续改进。Pointra 原始作者为 SYJun，其 README 说明项目基于 [yelog/SnapTraTranslator](https://github.com/yelog/SnapTraTranslator)。本仓库保留上游提交历史；新增工作见 [改进记录](docs/CHANGES.md)。
 
-<p align="center">
-  <img src="public/demo-main.png" alt="Pointra" width="920" />
-</p>
+## 项目状态
 
+当前提供源码，优先面向 Windows 开发与验证。继承了 macOS 实现，但本分支的 macOS 构建与 OCR 行为仍待验证。安装包和自动更新通道尚未发布。
 
----
+## 本分支的改进
 
-## Features
+- **中文光标取词**：将 OCR 字框与中文词边界结合，使用由 jieba 词典生成的词频表，减少相邻词误合并。
+- **中英混排翻译**：按汉字和英文单词判断语言；支持自动、中文、英文目标语言，并对疑似未翻译的结果重试一次。
+- **完整段落与 Markdown**：保留换行，展示标题、列表、代码等 Markdown 内容，长译文可滚动阅读。
+- **窗口交互**：拖拽调整尺寸并记忆大小，处理缩放期间自动隐藏与页脚按钮被遮挡的问题。
+- **可配置模型后端**：通过 Chat Completions 形式的接口请求翻译，本地配置服务地址、模型和 API Key。当前请求参数针对法衡-H1，其他服务需验证兼容性。
 
-| 功能 | 说明 |
-|------|------|
-| 🖱️ **光标取词** | 光标停留到单词位置，按下快捷键（默认 `F2`），自动截取光标周围区域进行 OCR 识别并翻译 |
-| 📝 **选词翻译** | 选中任意文本后按下快捷键（macOS `Cmd + 1` / Windows `Alt + 1`），直接翻译 |
-| 🔍 **搜索窗口** | 唤起搜索窗口（macOS `Cmd + 2` / Windows `Alt + 2`），手动输入文本进行翻译 |
-| 🎯 **智能识别** | 自动判断输入文本是单词还是句子，单词展示词典详情，句子展示翻译结果 |
-| 🔊 **真人发音** | 支持美式 / 英式发音，查词成功后自动播放音频 |
-| 📌 **窗口置顶** | 按下 `F1` 将翻译窗口置顶，方便长时查阅 |
-| 🎨 **圆角玻璃** | macOS 平台原生毛玻璃 + 圆角窗口效果 |
-| ⚙️ **键自定义** | 所有快捷键均可在设置界面自定义 |
-| 🖥️ **系统托盘** | 托盘菜单支持快速搜索、重启、退出 |
-| 🚀 **开机自启** | 可在设置中开启开机自启 |
-| 🔄 **自动更新** | 启动时检查版本更新 |
+## 从源码运行
 
+需要 Node.js 22.12+、pnpm、Rust stable，以及 [Tauri 平台前置依赖](https://v2.tauri.app/start/prerequisites/)。Windows 需 MSVC C++ 构建工具与 WebView2，中文 OCR 需相应的 Windows 语言包。
 
-## Quick Start
+    git clone https://github.com/sgafxh/lingolens.git
+    cd lingolens
+    pnpm install --frozen-lockfile
+    pnpm tauri dev
 
-### 前置依赖
+构建前端：运行 pnpm build。构建桌面安装包：运行 pnpm tauri build。
 
-- [Node.js](https://nodejs.org/) ≥ 18
-- [pnpm](https://pnpm.io/)
-- [Rust](https://www.rust-lang.org/) （用于编译 Tauri 后端）
+## 配置翻译服务
 
-### 开发
+先运行一次应用，再退出应用并编辑配置文件。Windows 路径：
 
-```bash
-# 克隆仓库
-git clone https://github.com/SYJcn/Pointra-Pub.git
-cd Pointra-Pub
+    %APPDATA%\io.github.sgafxh.lingolens\config.json
 
-# 安装前端依赖
-pnpm install
+在已有的 config 对象内修改以下字段，保留其余设置：
 
-# 启动开发模式
-pnpm tauri dev
-```
+    {
+      "llm_base_url": "https://api.faheng.chat/v1",
+      "llm_model": "法衡-H1",
+      "llm_api_key": "YOUR_API_KEY",
+      "llm_target_lang": "auto"
+    }
 
-### 构建
+llm_target_lang 可选 auto、zh、en。光标取到中文时固定译为英文；划词和输入翻译遵循目标语言配置。接口会发送 reasoning_effort: "none"，服务端须支持此参数。翻译服务费用由所选服务商收取。
 
-```bash
-pnpm tauri build
-```
+新的应用标识使用独立配置目录；已有 Pointra 用户可手动复制需要的配置字段。API Key 存储在本机配置文件中，勿上传配置文件或日志。
 
-构建产物位于 `src-tauri/target/release/bundle/`
+## 快捷键与数据流
 
-## Tech Stack
+| 操作 | 默认快捷键 |
+| --- | --- |
+| 光标取词 | F2 |
+| 窗口置顶 | F1 |
+| 划词翻译 | Windows Alt+1 / macOS Cmd+1 |
+| 输入翻译 | Windows Alt+2 / macOS Cmd+2 |
 
-| 层级 | 技术 | 用途 |
-|------|------|------|
-| **UI 框架** | React 19 + TypeScript | 前端界面 |
-| **构建工具** | Vite 7 | 前端构建 |
-| **桌面框架** | Tauri v2 | 跨平台桌面容器 |
-| **状态管理** | Zustand | 全局状态管理 |
-| **路由** | React Router v7 | 页面路由 |
-| **UI 组件** | HeroUI（@heroui/react）| 界面组件库 |
-| **图标** | @gravity-ui/icons | 图标集 |
-| **CSS** | Tailwind CSS 4 | 样式方案 |
-| **后端语言** | Rust | 桌面端逻辑 |
-| **OCR（macOS）** | Apple Vision Framework| 屏幕文字识别 |
-| **OCR（Windows）** | Windows.Media.Ocr | 屏幕文字识别 |
-| **截图** | screenshots | 屏幕区域截图 |
-| **全局快捷键** | tauri-plugin-global-shortcut | 快捷键注册 |
-| **键盘监听** | device_query | 低层键盘状态轮询 |
-| **窗口管理** | tauri-nspanel | macOS 面板窗口 |
+快捷键可在设置中修改。截图和 OCR 在本机执行；识别后的文本发送给配置的翻译服务。发音功能会向有道语音接口发送待朗读的单词。诊断日志默认关闭，设置 LINGOLENS_DEBUG=1 后写入临时目录的 lingolens.log，其中可能含原文片段。
 
-## Project Structure
+## 开发与贡献
 
-```
-Pointra/
-├── src/                              # 前端源码
-│   ├── main/                         # 主窗口（翻译界面）
-│   │   ├── components/               # 组件
-│   │   │   ├── ApiError.tsx          # 翻译错误提示
-│   │   │   ├── Content.tsx           # 词典翻译结果展示
-│   │   │   ├── CustomToast.tsx       # 自定义 Toast
-│   │   │   ├── Footer.tsx            # 底部栏
-│   │   │   ├── Header.tsx            # 顶部栏
-│   │   │   ├── Loading.tsx           # 加载动画
-│   │   │   └── SearchContent.tsx     # 搜狗查词结果展示
-│   │   ├── pages/
-│   │   │   ├── HomePage.tsx          # 主页面（取词翻译）
-│   │   │   └── SearchPage.tsx        # 搜索页（输入翻译）
-│   │   ├── store/
-│   │   │   ├── useConfigStore.ts     # 配置状态
-│   │   │   └── useUiStore.ts         # UI 状态（置顶、更新）
-│   │   ├── types/
-│   │   │   └── transResult.ts        # 翻译结果类型
-│   │   ├── utils/
-│   │   │   ├── tool.ts               # 工具函数
-│   │   │   └── useCustom.ts          # 自定义 Hooks
-│   │   ├── App.tsx                   # 主入口组件
-│   │   ├── index.html
-│   │   └── index.tsx
-│   ├── setting/                      # 设置窗口
-│   │   ├── components/
-│   │   │   ├── AboutSection.tsx      # 关于软件
-│   │   │   ├── GeneralSection.tsx    # 通用设置
-│   │   │   ├── KeyTag.tsx            # 快捷键标签
-│   │   │   ├── Permission.tsx        # macOS 权限引导
-│   │   │   ├── SettingHeader.tsx     # 设置页头部
-│   │   │   └── ShortcutSection.tsx   # 快捷键设置
-│   │   ├── App.tsx
-│   │   ├── ConfigManager.ts          # 配置管理
-│   │   ├── hooks.ts                  # 快捷键录制 Hook
-│   │   ├── index.html
-│   │   ├── index.tsx
-│   │   ├── settingsMeta.ts           # 设置元数据
-│   │   ├── types.ts                  # 类型定义
-│   │   └── utils.ts                  # 工具函数
-│   ├── assets/                       # 静态资源
-│   └── hooks/
-│       └── usePlatform.ts            # 平台检测 Hook
-│
-├── src-tauri/                        # Rust 后端
-│   ├── src/
-│   │   ├── main.rs                   # 入口
-│   │   ├── lib.rs                    # 应用启动、插件注册
-│   │   ├── commands/                 # Tauri 命令
-│   │   │   ├── mod.rs
-│   │   │   ├── access_mac.rs         # macOS 权限检测
-│   │   │   ├── audio.rs              # 音频播放
-│   │   │   ├── config.rs             # 配置读写
-│   │   │   ├── translate.rs          # 翻译命令
-│   │   │   └── window.rs             # 窗口交互命令
-│   │   └── utils/                    # 工具模块
-│   │       ├── mod.rs
-│   │       ├── capture_mac.rs        # macOS 截图
-│   │       ├── capture_win.rs        # Windows 截图
-│   │       ├── define_config.rs      # 配置结构 & 持久化
-│   │       ├── get_text.rs           # 文本获取（选区/光标）
-│   │       ├── macos_api.rs          # macOS 原生 API 封装
-│   │       ├── ocr_common.rs         # OCR 通用逻辑
-│   │       ├── ocr_mac.rs            # macOS Vision OCR
-│   │       ├── ocr_win.rs            # Windows OCR
-│   │       ├── selection_mac.rs      # macOS 辅助功能选中文本
-│   │       ├── selection_win.rs      # Windows 选中文本
-│   │       ├── set_window.rs         # macOS 窗口毛玻璃效果
-│   │       ├── shortcuts.rs          # 快捷键管理 & 光标监听
-│   │       ├── show_window.rs        # 窗口定位与显示
-│   │       ├── trans_server.rs       # 翻译 API 封装
-│   │       ├── tray.rs               # 系统托盘
-│   │       └── update.rs             # 版本更新检查
-│   ├── Cargo.toml
-│   └── tauri.conf.json
-│
-├── package.json
-├── vite.config.ts
-├── tsconfig.json
-└── pnpm-lock.yaml
-```
+见 [CONTRIBUTING.md](CONTRIBUTING.md)。OCR 与分词逻辑的快速测试：
 
-## Configuration
+    rustc --edition 2021 --test scripts/core_tests.rs -o core-tests
+    ./core-tests
 
-所有配置项均通过设置界面调整，持久化存储在 `tauri-plugin-store` 中。
+Windows 可将输出名改为 core-tests.exe。完整 Rust 单元测试：
 
-| 配置项 | 默认值 | 说明 |
-|--------|--------|------|
-| `theme` | `light` | 主题 |
-| `auto_start` | `false` | 开机自启 |
-| `auto_play` | `false` | 查词后自动播放发音 |
-| `pronunciation` | `us` | 发音类型 `us` / `uk` |
-| `pronunciation_volume` | `50` | 音量 0-100 |
-| `point_key` | `F2` | 光标翻译快捷键 |
-| `pinned_key` | `F1` | 窗口置顶快捷键 |
-| `hide_win_key` | `Tab` | 隐藏窗口快捷键 |
-| `select_text_modifiers` | `Cmd` (macOS) / `Alt` (Windows) | 选词翻译修饰键 |
-| `select_text_code` | `Digit1` | 选词翻译主键 |
-| `search_win_modifiers` | `Cmd` (macOS) / `Alt` (Windows) | 搜索窗口修饰键 |
-| `search_win_code` | `Digit2` | 搜索窗口主键 |
+    cargo test --manifest-path src-tauri/Cargo.toml --lib
 
-## API 接口类型
+## 许可证与致谢
 
-翻译服务调用 `fetch_trans_res` 命令，返回统一的结构化数据。
-**因调用非官方翻译 API，此代码不予公开，仅限学习与交流使用。**
-以下是 Rust 后端与 TypeScript 前端的类型定义。
-
-### Rust（后端类型）
-
-```rust
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-
-/// 翻译 API 返回的完整词典数据
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct DictResponse {
-    /// 发音数据（音标、音频地址等）
-    pub voice: Value,
-    /// 翻译结果（译文、来源语言、目标语言等）
-    pub translate: Value,
-    /// 单词卡片（释义、词形变化、同近义词等）
-    #[serde(rename = "wordCard")]
-    pub word_card: Value,
-}
-
-/// 前端统一的翻译查询结果
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct TransResult {
-    /// 状态码：200 成功，-1 失败
-    pub status: i16,
-    /// 错误消息（仅失败时存在）
-    pub msg: Option<String>,
-    /// 翻译结果数据（仅成功时存在）
-    pub data: Option<DictResponse>,
-}
-```
-
-> `voice`、`translate`、`word_card` 使用 `serde_json::Value`，其内部字段来自第三方 API。
-
-### TypeScript（前端类型）
-
-```typescript
-// ==============================
-// 第三方 API 内部结构（仅供参考）
-// ==============================
-
-interface Phonetic {
-    text: string;      // 音标
-    type: string;      // "usa" | "uk"
-    filename: string;  // 音频 URL
-}
-
-interface Voice {
-    phonetic: Phonetic[];
-}
-
-interface Translate {
-    from: string;      // 源语言
-    to: string;        // 目标语言
-    text: string;      // 查询原文
-    dit: string;       // 译文 / 释义
-}
-
-interface UsualDict {
-    pos: string;       // 词性，如 "n", "v"
-    values: string[];  // 释义列表
-}
-
-interface SecondQuery {
-    k: string;         // 标题
-    v: string;         // 内容（可能含 HTML）
-}
-
-interface Exchange {
-    word_third?: string[];  // 第三人称单数
-    word_ing?: string[];    // 现在分词
-    word_done?: string[];   // 过去分词
-    word_pl?: string[];     // 复数
-    word_past?: string[];   // 过去式
-    word_proto?: string[];  // 原型
-}
-
-interface WordCard {
-    title: string;
-    show: boolean;
-    usualDict: UsualDict[];
-    secondQuery: SecondQuery[] | string;
-    exchange: Exchange;
-    levelList: string[];
-}
-
-// ==============================
-// 应用统一响应结构（公开接口）
-// ==============================
-
-interface TransData {
-    translate: Translate;
-    wordCard: WordCard;
-    voice: Voice | string;
-}
-
-interface TransResult {
-    status: number;          // 200 成功，-1 失败
-    data: TransData | null;
-    msg: string | null;
-}
-```
-
-## Platforms
-
-| Platform | Status |
-|----------|--------|
-| macOS 12+ | ✅ |
-| Windows 10+ | ✅  |
-
-> **macOS 首次使用**需要授予**辅助功能权限**和**屏幕录制权限**，应用会自动引导授权流程。
-
-## License
-
-MIT © SYJun
-
----
-
-> 官方网站：[https://pointra.syjun.vip](https://pointra.syjun.vip)
->
+代码按 [MIT](LICENSE) 发布，保留 SYJun 的原始版权声明。词典与继承资源的来源见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。感谢 Pointra、SnapTraTranslator、jieba 及相关依赖的作者。

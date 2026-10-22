@@ -1,6 +1,6 @@
 //! 轻量诊断日志。
 //!
-//! 写在 `%TEMP%\pointra.log`，用于排查"窗口自己消失"这类时序问题：日志里能直接看到
+//! 写在 `%TEMP%\lingolens.log`，用于排查"窗口自己消失"这类时序问题：日志里能直接看到
 //! 是谁触发的隐藏、当时指针在哪、窗口矩形在哪、判定结果是什么。
 //!
 //! 只记关键事件（隐藏决策、窗口定位），不做滚动日志，超过上限就清空重来。
@@ -13,7 +13,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 const MAX_LOG_BYTES: u64 = 256 * 1024;
 
 pub fn log_path() -> PathBuf {
-    std::env::temp_dir().join("pointra.log")
+    std::env::temp_dir().join("lingolens.log")
 }
 
 /// 本地时间（UTC+8），形如 `18:42:07.123`
@@ -32,6 +32,9 @@ fn local_time() -> String {
 }
 
 pub fn log(tag: &str, msg: &str) {
+    if std::env::var("LINGOLENS_DEBUG").as_deref() != Ok("1") {
+        return;
+    }
     let path = log_path();
 
     if let Ok(meta) = std::fs::metadata(&path) {
