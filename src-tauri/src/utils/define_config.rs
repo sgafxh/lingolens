@@ -15,11 +15,11 @@ fn default_win_height() -> f64 {
 }
 
 fn default_llm_base_url() -> String {
-    "https://api.faheng.chat/v1".to_string()
+    String::new()
 }
 
 fn default_llm_model() -> String {
-    "法衡-H1".to_string()
+    String::new()
 }
 
 /// 翻译目标语言：auto（自动判定，默认）/ zh（一律中文）/ en（一律英文）

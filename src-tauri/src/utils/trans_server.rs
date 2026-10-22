@@ -432,7 +432,7 @@ async fn translate_with_faheng(
     kind: LangKind,
 ) -> Result<String, String> {
     if api_key.trim().is_empty() {
-        return Err("未配置法衡 API Key：请在配置文件里填入 llm_api_key".to_string());
+        return Err("请在设置 → 翻译服务中填写服务地址、模型和 API Key".to_string());
     }
 
     let url = format!("{}/chat/completions", base_url.trim_end_matches('/'));

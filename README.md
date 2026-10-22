@@ -33,27 +33,11 @@ A desktop translator for Chinese-English reading, with cursor OCR, word segmenta
 
 ## 配置翻译服务
 
-首次运行后退出应用，打开配置文件：
+首次启动会打开设置窗口。也可通过托盘菜单进入 **设置界面 → 翻译服务**，填写服务地址、模型名称和 API Key，选择目标语言后点击 **保存翻译服务**。
 
-    %APPDATA%\io.github.sgafxh.lingolens\config.json
+API Key 默认隐藏；更换地址、模型或目标语言时，Key 留空即可保留已保存的密钥。保存后的设置用于下一次翻译。
 
-在已有的 config 对象中填写以下字段：
-
-    {
-      "llm_base_url": "https://api.faheng.chat/v1",
-      "llm_model": "法衡-H1",
-      "llm_api_key": "YOUR_API_KEY",
-      "llm_target_lang": "auto"
-    }
-
-| 字段 | 用途 |
-| --- | --- |
-| llm_base_url | 翻译服务的 API 地址 |
-| llm_model | 使用的模型名称 |
-| llm_api_key | 该服务的 API Key |
-| llm_target_lang | auto 自动判断、zh 中文、en 英文 |
-
-光标取到中文时译为英文；划词和输入翻译遵循目标语言配置。模型接口采用 Chat Completions，请求包含 reasoning_effort: "none"，接入的服务需支持此参数。
+目标语言可选自动、中文或英文。光标取到中文时译为英文，划词和输入翻译遵循目标语言设置。
 
 ## 快捷键
 

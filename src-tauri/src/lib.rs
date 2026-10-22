@@ -4,7 +4,7 @@ mod commands;
 mod utils;
 use commands::access_mac::{check_permission, request_permission};
 use commands::audio::{play_phonetic_url, AudioState};
-use commands::config::{complete_setup, get_config, update_config};
+use commands::config::{complete_setup, get_config, update_config, get_translation_settings, save_translation_settings};
 use commands::translate::fetch_trans_res;
 use commands::window::{
     is_cursor_near_window, log_debug, save_window_size, stop_shortcuts, trigger_update_check,
@@ -59,6 +59,8 @@ pub fn run() {
             play_phonetic_url,
             get_config,
             update_config,
+            get_translation_settings,
+            save_translation_settings,
             complete_setup,
             stop_shortcuts,
             check_permission,
@@ -140,6 +142,9 @@ pub fn run() {
 
             init_point_listener(app.handle().clone());
             init_shortcuts(app.handle());
+            if config.llm_base_url.is_empty() || config.llm_model.is_empty() || config.llm_api_key.is_empty() {
+                tray::create_setting_win(app.handle());
+            }
             Ok(())
         })
         .plugin(tauri_plugin_opener::init())

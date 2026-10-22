@@ -4,6 +4,7 @@ import PermissionMacSection from "./components/PermissionMacSection";
 import SettingHeader from "./components/SettingHeader";
 import GeneralSection from "./components/GeneralSection";
 import ShortcutSection from "./components/ShortcutSection";
+import TranslationSection from "./components/TranslationSection";
 import AboutSection from "./components/AboutSection";
 import CustomToast from "../main/components/CustomToast";
 
@@ -50,6 +51,8 @@ function SettingPage() {
             {/* ============ 滚动内容 ============ */}
             <div className="flex-1 overflow-y-auto no-scrollbar px-3 pt-3 mb-3 space-y-6">
                 {isMac && <PermissionMacSection />}
+
+                <TranslationSection />
 
                 <GeneralSection
                     settings={generalSettings}
