@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "LingoLens",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "identifier": "io.github.sgafxh.lingolens",
   "build": {
     "beforeDevCommand": "pnpm dev",
@@ -47,6 +47,9 @@
         "installerIcon": "icons/icon.ico",
         "installerHooks": "windows/installer-hooks.nsh"
       }
+    },
+    "resources": {
+      "icons/shortcut.ico": "icons/LingoLens.ico"
     }
   }
 }

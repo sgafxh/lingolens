@@ -20,3 +20,14 @@ Frontend build passed. Windows Rust suite: 30 passed, 0 failed, 1 ignored. New t
 - Compared local credentials against the release executable and frontend assets: zero matches.
 
 Live OCR-to-provider translation and macOS builds remain untested in this release.
+
+## Windows 1.0.2 shortcut icon update
+
+- Production frontend, Rust release build and NSIS packaging passed.
+- Standalone NSIS hook check created a shortcut with the expected absolute ICO path and no expandable icon block.
+- Local silent upgrade from 1.0.1 completed with exit code 0; installed executable reports 1.0.2.
+- Translation configuration file hash was unchanged after upgrade.
+- Desktop and Start menu shortcuts both target the installed executable and its bundled standalone ICO.
+- Windows system image list extraction succeeded for the installed desktop shortcut at large, extra-large and jumbo sizes.
+- Compared local credentials against the release executable and frontend assets: zero matches.
+- Interactive finish-page callback compiles; a full interactive installer walkthrough was not performed.

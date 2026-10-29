@@ -24,7 +24,7 @@ A desktop translator for Chinese-English reading, with cursor OCR, word segmenta
 
 ### Windows 安装
 
-从 [GitHub Releases](https://github.com/sgafxh/lingolens/releases/latest) 下载 **LingoLens_1.0.1_x64-setup.exe**，运行安装后，在首次打开的设置窗口中配置翻译服务。
+从 [GitHub Releases](https://github.com/sgafxh/lingolens/releases/latest) 下载 **LingoLens_1.0.2_x64-setup.exe**，运行安装后，在首次打开的设置窗口中配置翻译服务。
 
 适用于 Windows 10/11 x64，需要 WebView2；中文 OCR 需要系统安装中文语言包。每个版本附带 SHA256 校验文件。
 
