@@ -1,46 +1,52 @@
 {
-    "$schema": "https://schema.tauri.app/config/2",
-    "productName": "LingoLens",
-    "version": "1.0.0",
-    "identifier": "io.github.sgafxh.lingolens",
-    "build": {
-        "beforeDevCommand": "pnpm dev",
-        "devUrl": "http://localhost:1420",
-        "beforeBuildCommand": "pnpm build",
-        "frontendDist": "../dist"
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "LingoLens",
+  "version": "1.0.1",
+  "identifier": "io.github.sgafxh.lingolens",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "LingoLens",
+        "label": "main",
+        "url": "src/main/index.html",
+        "width": 300,
+        "height": 420,
+        "minWidth": 260,
+        "minHeight": 200,
+        "visible": false,
+        "resizable": true,
+        "decorations": false,
+        "transparent": true,
+        "shadow": true,
+        "skipTaskbar": true,
+        "alwaysOnTop": true
+      }
+    ],
+    "security": {
+      "csp": null
     },
-    "app": {
-        "windows": [
-            {
-                "title": "LingoLens",
-                "label": "main",
-                "url": "src/main/index.html",
-                "width": 300,
-                "height": 420,
-                "minWidth": 260,
-                "minHeight": 200,
-                "visible": false,
-                "resizable": true,
-                "decorations": false,
-                "transparent": true,
-                "shadow": true,
-                "skipTaskbar": true,
-                "alwaysOnTop": true
-            }
-        ],
-        "security": {
-            "csp": null
-        },
-        "macOSPrivateApi": true
-    },
-    "bundle": {
-        "active": true,
-        "targets": "all",
-        "icon": [
-            "icons/128x128.png",
-            "icons/128x128@2x.png",
-            "icons/icon.icns",
-            "icons/icon.ico"
-        ]
+    "macOSPrivateApi": true
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "installerHooks": "windows/installer-hooks.nsh"
+      }
     }
+  }
 }
